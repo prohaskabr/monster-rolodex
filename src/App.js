@@ -1,25 +1,53 @@
-import logo from './logo.svg';
+import { Component } from 'react';
 import './App.css';
+import CardList from './components/card-list/card-list.component';
+import SearchBox from './components/search-box/search-box.component';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends Component {
+
+  constructor() {
+    super();
+
+    this.state = {
+      monsters: [],
+      searchField: ''
+    }
+  }
+
+  componentDidMount() {
+    var url = 'https://jsonplaceholder.typicode.com/users/';
+    fetch(url)
+      .then((response) => response.json())
+      .then((users) => this.setState(() => {
+        return { monsters: users };
+      }, () => {
+        console.log('load completed');
+      }));
+  }
+
+  onSearchChanged = (event) => {
+    this.setState(() => {
+      return { searchField: event.target.value.toLocaleLowerCase() }
+    });
+  }
+
+  render() {
+
+    const { monsters, searchField } = this.state;
+    const { onSearchChanged } = this;
+
+    const filteredMonster = monsters.filter((data) => {
+      return data.name.toLocaleLowerCase().includes(searchField);
+    });
+
+    return (
+      <div className="App">
+        <h1 className='app-title'>Monster Rolodex</h1>
+        <SearchBox defaultText='search monsters' onChangeHandler={onSearchChanged} />
+        <CardList items={filteredMonster} />
+      </div>
+    );
+  }
 }
 
 export default App;
